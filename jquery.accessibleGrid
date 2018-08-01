@@ -1,14 +1,15 @@
 // Accessible Grid jQuery Plugin 
 //
-// VERSION = 0.08, 08 August 2012
+// VERSION = 0.09, 12 November 2014
 //
 // Author: Benjamin Krepp
 //
 // Revision history:
 // 
+// 0.08 - Mary McShane added colstyle parameter.
 // 0.08 - Added record, rowIndex, colIndex, and store parameters to 
-//        parameters passed to renderer fucntions.
-// 0.07 - Converted to jQuery plugin; successsor to CtpsAccessibilityLib.Grid.
+//        parameters passed to renderer functions.
+// 0.07 - Converted to jQuery plugin; successor to CtpsAccessibilityLib.Grid.
 // 0.06 - Added support for thcls and cls options in columns descriptor.
 //        Tightend up the code a bit.
 // 0.05 - Interface change: Renamed constructor 'AccessibleGrid' simply to 'Grid',
@@ -90,7 +91,7 @@
 							tablecls	: '',
 							capcls		: '',
 							theadcls	: '',
-							tbodycls	: ''
+							tbodycls	: ''                           
 						};
 		var settings = $.extend(defaults, options || {});
 			
@@ -112,6 +113,8 @@
 		var szTheadcls = options.theadcls || '';
 		var szTbodycls = options.tbodycls || '';
 		var szCapcls   = options.capcls || '';
+ //       var szColStyle = options.colstyle || '';
+       
 		
 		var szTemp = '';
 		var i;
@@ -134,7 +137,7 @@
 		for (i = 0; i < colDesc.length; i++) {
 			szTemp += '<th id="' + tableId + '_' + colDesc[i].dataIndex + '"' ;
 			szTemp += (colDesc[i].thcls !== undefined) ? ' class="' + colDesc[i].thcls + '"' : '';
-			szTemp += (colDesc[i].style !== undefined) ? ' style="' + colDesc[i].style + '"' : '';
+			szTemp += (colDesc[i].style !== undefined) ? ' style="' + colDesc[i].style + '"' : '';       //      NOTE:  this only sets style for column HEADER--if you want to change the style of ROWS--see below
 			szTemp += (scopeAttrs === true) ? ' scope="col"' : '';
 			szTemp += ' role="gridcell">'; 
 			szTemp += colDesc[i].header + '</th>';
@@ -175,16 +178,22 @@
 					if (scopeAttrs === true) {
 						szTd += ' scope="row"';
 					}
-					szTd += ' role="gridcell">';
+					szTd += ' role="gridcell">';      
 				} else {
-					szHeaders = tableId + '_' + colDesc[i].dataIndex + ' ' + szRowId;
+					szHeaders = tableId + '_' + colDesc[i].dataIndex + ' ' + szRowId;                    
+     
+                    
 					szTd = '<td ';
 					if (colDesc[i].cls !== undefined) {
-						szTd += ' class="' + colDesc[i].cls + '"';
+						szTd += ' class="' + colDesc[i].cls + '"';                       
 					}
+                    if (colDesc[i].colstyle !== undefined) {                                            //      ADDED IN SO THAT I COULD RIGHT-JUSTIFY DATA IN COLUMNS, NOT JUST HEADER....
+						szTd += ' style="' + colDesc[i].colstyle + '"';                                 //      MPM, November 10, 2014                         
+					}
+                    
 					szTd += ' headers="' + szHeaders + '" role="gridcell">';
 				}
-				szRow += szTd;
+				szRow += szTd;   
 				szRow += (colDesc[i].renderer === undefined) ? record[colDesc[i].dataIndex] 
 															 : colDesc[i].renderer(record[colDesc[i].dataIndex],
 															                       record,
