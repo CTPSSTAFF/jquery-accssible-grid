@@ -1,11 +1,13 @@
 // Accessible Grid jQuery Plugin 
 //
-// VERSION = 0.07, 22 June 2012
+// VERSION = 0.08, 08 August 2012
 //
 // Author: Benjamin Krepp
 //
 // Revision history:
 // 
+// 0.08 - Added record, rowIndex, colIndex, and store parameters to 
+//        parameters passed to renderer fucntions.
 // 0.07 - Converted to jQuery plugin; successsor to CtpsAccessibilityLib.Grid.
 // 0.06 - Added support for thcls and cls options in columns descriptor.
 //        Tightend up the code a bit.
@@ -40,21 +42,22 @@
 	$.fn.accessibleGrid = function(colDesc, options, aData) {
 		// Parameters: colDesc, options, aData
 		//
-		// Options in "coldesc" (columns descriptor object):
+		// Options in "coldesc" (columns descriptor object) Parameter:
 		//     cls        - CSS class to assign to "data" elements for this colum (<td> or <th>).
 		//     dataIndex  - name of field in input data object to be mapped to this column (REQUIRED)
 		//     header     - column header text
-		//     renderer   - user-provided function to call to render each data value (optional)
+		//     renderer   - user-provided function to call to render each data value (optional).
+		//                  See below for the list of parameters passed to renderers.
 		//     style      - value of style attribute to be assigned to the table header (<th>) element
 		//                  created for the column; this is specified as a string, e.g., style="width:50"
 		//     thcls      - CSS class to assign to column header <th> element
 		//
-		// Options in "options":
+		// Options in "options" parameter:
 		//     divId      - id of the <div> in which to create the table (REQUIRED)
 		//     tableId    - id of the <table> to be created
 		//     ariaLive   - value of aria-live attribute of the <div>; defaults to 'assertive'
 		//     caption    - string for the table's <caption>
-		//     colDesc    - columns descriptor object (see below)
+		//     colDesc    - columns descriptor object (see above)
 		//     col1th     - generate a <th> element (rather than a <td> element) for the first  
 		//                  data cell in each row; defaults to false
 		//     scopeAttrs - generate a scope="col" attribute for the <th> element for each column
@@ -68,7 +71,14 @@
 		//     theadcls   - CSS class to assign to <thead> element
 		//     tbodycls   - CSS class to assign to <tbody> element
 		//
-		// aData          - JavaScript array of objects containing the data to load into the table.
+		// "aData" Parameter - JavaScript array of objects containing the data to load into the table.
+		//
+		// The following parameters are passed to "renderer" functions:
+		// 1. value  - the value of the data cell in question
+		// 2. record - the entire record in which "value" resides, i.e., the row in "aData" containing "value".
+		// 3. rowIndex - ZERO-based index of the row in "aData" containing "value".
+		// 4. colIndex - ZERO-based index of the column in "aData" containing "value".
+		// 5. store    - the entire data store, i.e., "aData".
 	
 		var defaults = {	tableId 	: '',
 							ariaLive	:'assertive',
@@ -176,7 +186,11 @@
 				}
 				szRow += szTd;
 				szRow += (colDesc[i].renderer === undefined) ? record[colDesc[i].dataIndex] 
-															 : colDesc[i].renderer(record[colDesc[i].dataIndex]);
+															 : colDesc[i].renderer(record[colDesc[i].dataIndex],
+															                       record,
+																				   count-1, // Convert to ZERO-based row index.
+																				   i, 
+																				   aData);
 				szRow += ((i === 0) && (col1th === true)) ? '</th>' : '</td>';
 			} // for loop over columns
 			szRow += '</tr>';
